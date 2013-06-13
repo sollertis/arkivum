@@ -8,12 +8,26 @@
         <file>
           <filename>epm/arkivum/cfg/cfg.d/arkivum.pl</filename>
           <mime_type>text/plain</mime_type>
-          <hash>370e19c385935b5a2caa5f4af329b4a5</hash>
+          <hash>d86c4e5249a11fa6bb2f7de53ed7ae10</hash>
           <hash_type>MD5</hash_type>
-          <filesize>322</filesize>
+          <filesize>735</filesize>
         </file>
         <file>
-          <filename>plugins/EPrints/Plugin/Storage/Arkivum.pm</filename>
+          <filename>plugins/EPrints/Plugin/Event/Arkivum.pm</filename>
+          <mime_type>text/plain</mime_type>
+          <hash>8a6792814aa8d735a45d35bbeac7bc46</hash>
+          <hash_type>MD5</hash_type>
+          <filesize>3383</filesize>
+        </file>
+        <file>
+          <filename>plugins/EPrints/Plugin/Screen/EPMC/Arkivum.pm</filename>
+          <mime_type>text/plain</mime_type>
+          <hash>251d7cb04c4f0c9241e8532f1520b5c6</hash>
+          <hash_type>MD5</hash_type>
+          <filesize>1504</filesize>
+        </file>
+        <file>
+          <filename>plugins/EPrints/Plugin/Storage/ArkivumR.pm</filename>
           <mime_type>text/plain</mime_type>
           <hash>a61883bd95702ba0f2dc9eb5cbfd779e</hash>
           <hash_type>MD5</hash_type>
@@ -47,7 +61,8 @@
       <content>coverimage</content>
     </document>
   </documents>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
+  <controller>EPMC::Arkivum</controller>
   <creators>
     <item>
       <name>
@@ -55,6 +70,13 @@
         <given>Richard</given>
       </name>
       <id>richard.lowe@arkivum.com</id>
+    </item>
+    <item>
+      <name>
+        <family>Pembury</family>
+        <given>Mark</given>
+      </name>
+      <id>mark.pembury@arkivum.com</id>
     </item>
   </creators>
   <title>Arkivum A-Stor Storage Backend</title>

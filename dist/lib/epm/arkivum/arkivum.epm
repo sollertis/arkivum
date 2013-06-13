@@ -8,19 +8,129 @@
         <file>
           <filename>epm/arkivum/cfg/cfg.d/arkivum.pl</filename>
           <mime_type>text/plain</mime_type>
-          <hash>370e19c385935b5a2caa5f4af329b4a5</hash>
+          <hash>d86c4e5249a11fa6bb2f7de53ed7ae10</hash>
           <hash_type>MD5</hash_type>
-          <filesize>322</filesize>
+          <filesize>735</filesize>
           <data encoding='base64'>IyBUbyBDb25maWd1cmUgeW91ciBBcmtpdnVtIFN0b3JhZ2UsIHBsZWFzZSBmaWxsIGluIHRoZSBj
 b25maWd1cmF0aW9uIGZpZWxkcyBiZWxvdzoKIwojIE9uY2UgZG9uZSwgcGxlYXNlIHJlbW92ZSB0
 aGUgY29tbWVudHMgJyMnIGZyb20gdGhlIGJlZ2lubmluZyBvZiBlYWNoIGxpbmUsIHNhdmUgdGhp
 cyBmaWxlIGFuZCB0aGVuIHJlbG9hZCB0aGUgcmVwb3NpdG9yeSBjb25maWcgZnJvbSB0aGUgQWRt
-aW4gc2NyZWVuLgojIAoKJGMtPntwbHVnaW5zfS0+eyJTdG9yYWdlOjpBcmtpdnVtUiJ9LT57cGFy
-YW1zfS0+e21vdW50X3BhdGh9ID0gIi9tbnQvYXJjaGl2ZSI7Cg==
+aW4gc2NyZWVuLgojIAokYy0+e3BsdWdpbnN9eyJFdmVudDo6QXJraXZ1bSJ9e3BhcmFtc317ZGlz
+YWJsZX0gPSAwOwokYy0+e3BsdWdpbnN9eyJTdG9yYWdlOjpBcmtpdnVtUiJ9e3BhcmFtc317ZGlz
+YWJsZX0gPSAwOwoKJGMtPntwbHVnaW5zfS0+eyJTdG9yYWdlOjpBcmtpdnVtUiJ9LT57cGFyYW1z
+fS0+e21vdW50X3BhdGh9ID0gIi9tbnQvYXJjaGl2ZSI7CgokYy0+YWRkX2RhdGFzZXRfZmllbGQo
+ICJkb2N1bWVudCIsIHsKCQluYW1lID0+ICJhcmNoaXZlX3N0YXR1cyIsCgkJdHlwZSA9PiAnc2V0
+JywKCQlvcHRpb25zID0+IFtxdygKCQkJYXJjaGl2ZV9yZXF1ZXN0ZWQKCQkJYXJjaGl2ZV9hcHBy
+b3ZlZAoJCQlpbmdlc3RlZAoJCQlyZXBsaWNhdGVkCgkJCWVzY3JvdwoJCQlhcmNoaXZlX2ZhaWxl
+ZAoJCQlkZWxldGVfcmVxdWVzdGVkCgkJCWRlbGV0ZV9hcHByb3ZlZAoJCQlkZWxldGVfaW5fcHJv
+Z3Jlc3MKCQkJZGVsZXRlZAoJCQlkZWxldGVfZmFpbGVkCgkJKV0sCgl9LCAKKTsKCgoK
 </data>
         </file>
         <file>
-          <filename>plugins/EPrints/Plugin/Storage/Arkivum.pm</filename>
+          <filename>plugins/EPrints/Plugin/Event/Arkivum.pm</filename>
+          <mime_type>text/plain</mime_type>
+          <hash>8a6792814aa8d735a45d35bbeac7bc46</hash>
+          <hash_type>MD5</hash_type>
+          <filesize>3383</filesize>
+          <data encoding='base64'>cGFja2FnZSBFUHJpbnRzOjpQbHVnaW46OkV2ZW50OjpBcmtpdnVtOwoKQElTQSA9IHF3KCBFUHJp
+bnRzOjpQbHVnaW46OkV2ZW50ICk7Cgp1c2UgSlNPTiBxdyhkZWNvZGVfanNvbik7CnVzZSBMV1A6
+OlVzZXJBZ2VudDsKCnN1YiBuZXcKewogICAgbXkoICRjbGFzcywgJXBhcmFtcyApID0gQF87CiAK
+ICAgIG15ICRzZWxmID0gJGNsYXNzLT5TVVBFUjo6bmV3KCAlcGFyYW1zICk7CiAKICAgICRzZWxm
+LT57YWN0aW9uc30gPSBbcXcoIGVuYWJsZSBkaXNhYmxlICldOwogICAgJHNlbGYtPntkaXNhYmxl
+fSA9IDA7ICMgYWx3YXlzIGVuYWJsZWQsIGV2ZW4gaW4gbGliL3BsdWdpbnMKIAogICAgJHNlbGYt
+PntwYWNrYWdlX25hbWV9ID0gIkFya2l2dW0iOwogCiAgICByZXR1cm4gJHNlbGY7Cn0KCnN1YiBh
+c3Rvcl9jaGVja2VyIAp7CglteSAoICRzZWxmICkgPSBAXzsKCiAgIAlteSAkcmVwb3NpdG9yeSA9
+ICRzZWxmLT57cmVwb3NpdG9yeX07CgkKCSMgUHJvY2VzcyB0aGUgY29weSBhcHByb3ZlZCByZXF1
+ZXN0cwoJJHNlbGYtPnByb2Nlc3NfcmVxdWVzdHMoImFzdG9yX2NvcHkiLCAiYXJjaGl2ZV9hcHBy
+b3ZlZCIpOwoJCgkjIFByb2Nlc3MgdGhlIGRlbGV0ZSBhcHByb3ZlZCByZXF1ZXN0cwoJJHNlbGYt
+PnByb2Nlc3NfcmVxdWVzdHMoImFzdG9yX2RlbGV0ZSIsICJkZWxldGVfYXBwcm92ZWQiKTsKIAog
+ICAJcmV0dXJuOwp9CgpzdWIgcHJvY2Vzc19yZXF1ZXN0cwp7CglteSggJHNlbGYsICRhY3Rpb24s
+ICRzdGF0dXMgKSA9IEBfOwoKCW15ICRyZXBvc2l0b3J5ID0gJHNlbGYtPntyZXBvc2l0b3J5fTsK
+CQoJbXkgJGRzID0gJHJlcG9zaXRvcnktPmRhdGFzZXQoICJkb2N1bWVudCIgKTsKCgkjIENyZWF0
+ZSBzZWFyY2ggZXhwcmVzc2lvbgoJbXkgJHNlYXJjaCA9IG5ldyBFUHJpbnRzOjpTZWFyY2goIHNl
+c3Npb249PiRyZXBvc2l0b3J5LCBkYXRhc2V0PT4kZHMgKTsKCgkjIEFkZCBmaWx0ZXIKCSRzZWFy
+Y2gtPmFkZF9maWVsZCggJGRzLT5nZXRfZmllbGQoICJhcmNoaXZlX3N0YXR1cyIgKSwgJHN0YXR1
+cywgIkVRIiwgIkFMTCIgKTsKIAoJIyBQZXJmb3JtIHRoZSBzZWFyY2gKCW15ICRyZXN1bHRzID0g
+JHNlYXJjaC0+cGVyZm9ybV9zZWFyY2g7CgoJIyBHZXQgdGhlIG51bWJlciBvZiBzZWFyY2ggcmVz
+dWx0cyAKCW15ICRjb3VudCA9ICRyZXN1bHRzLT5jb3VudDsKIAoJIyBHZXQgYWxsIG1hdGNoaW5n
+IGlkcwoJbXkgJGlkcyA9ICRyZXN1bHRzLT5nZXRfaWRzOyAKIAoJJHJlc3VsdHMtPm1hcCggCgkJ
+c3ViIHsKCQkJbXkoICRzZXNzaW9uLCAkZGF0YXNldCwgJGRvYyApID0gQF87CgoJCQkjIENyZWF0
+ZSBhbiBFdmVudCBUYXNrIHRvIHByb2Nlc3MgdGhlIGNvcHkgYWN0aW9uIGZvciB0aGlzIEVQcmlu
+dAoJCQkkcmVwb3NpdG9yeS0+ZGF0YXNldCggImV2ZW50X3F1ZXVlIiApLT5jcmVhdGVfZGF0YW9i
+aih7CgkJCQlwbHVnaW5pZCA9PiAiRXZlbnQ6OkFya2l2dW0iLAoJCQkJYWN0aW9uID0+ICRhY3Rp
+b24sCgkJCQlwYXJhbXMgPT4gWyRkb2MtPmdldF92YWx1ZSgiZG9jaWQiKV0sIH0pOwoJCX0KCSk7
+CiAKCSRyZXN1bHRzLT5kaXNwb3NlOwoJCglyZXR1cm47Cn0KCgpzdWIgYXN0b3JfY29weQp7Cglt
+eSggJHNlbGYsICRkb2NpZCApID0gQF87CgoJbXkgJHJlcG9zaXRvcnkgPSAkc2VsZi0+e3JlcG9z
+aXRvcnl9OwoKCW15ICRkb2MgPSBuZXcgRVByaW50czo6RGF0YU9iajo6RG9jdW1lbnQoICRyZXBv
+c2l0b3J5LCAkZG9jaWQgKTsKCQoJaWYgKCBkZWZpbmVkICRkb2MgKSB7CgkJcHJpbnQgIkRvY3Vt
+ZW50OiAkZG9jaWRcbiI7CgkJJGRvYy0+c2V0X3ZhbHVlKCJhcmNoaXZlX3N0YXR1cyIsICJyZXBs
+aWNhdGVkIik7CgkJJGRvYy0+Y29tbWl0KCk7Cgl9CgkKIwlteSAkanNvbiA9ICRzZWxmLT5hc3Rv
+cl9nZXRTdGF0dXNJbmZvKCk7CiMJaWYgKCBkZWZpbmVkICRqc29uICkgewojCQlwcmludCAianNv
+biBzdHJpbmcgcmV0dXJuZWRcbiI7CiMJfQoKCXJldHVybjsKfQoKCnN1YiBhc3Rvcl9kZWxldGUK
+ewoJbXkoICRzZWxmLCAkZmlsZWlkICkgPSBAXzsKCglteSAkcmVwb3NpdG9yeSA9ICRzZWxmLT57
+cmVwb3NpdG9yeX07CgoJbXkgJGZpbGUgPSBuZXcgRVByaW50czo6RGF0YU9iajo6RmlsZSggJHJl
+cG9zaXRvcnksICRmaWxlaWQgKTsKCglpZiAoIGRlZmluZWQgJGZpbGUgKSB7CgkJJGZpbGUtPnNl
+dF92YWx1ZSgiYXJjaGl2ZV9zdGF0dXMiLCAiZGVsZXRlZCIpOwoJCSRmaWxlLT5jb21taXQoKTsK
+CX0KCglyZXR1cm47Cn0KCgojCiMJQS1TdG9yIFJFU1QgQVBJIEZ1bmN0aW9ucwojCgpteSAkc2Vy
+dmVyX3VybCAgPSAiaHR0cHM6Ly8xNzIuMTguMi4yNDA6ODQ0MyI7Cm15ICRhcGlfdXJsID0gIi9q
+c29uL3N0YXR1cy9pbmZvLyI7Cm15ICRyZXN0X3VybCA9ICRzZXJ2ZXJfdXJsIC4gJGFwaV91cmw7
+CgpzdWIgYXN0b3JfZ2V0U3RhdHVzSW5mbyAKewoKICBteSAkcmVzcG9uc2UgPSAkc2VsZi0+Z2V0
+UmVxdWVzdCgkcmVzdF91cmwpOwoKICBpZiAoJHJlc3BvbnNlLT5pc19lcnJvcikgewogICAgcHJp
+bnQgIlx0RmFpbGVkLiBFcnJvcjogIiAuICRyZXNwb25zZS0+c3RhdHVzX2xpbmUgLiAiXG4iOwoJ
+cmV0dXJuOwogIH0KICAKICAjIEdldCB0aGUgY29udGVudCB3aGljaCBzaG91bGQgYmUgYSBqc29u
+IHN0cmluZwogIG15ICRqc29uID0gZGVjb2RlX2pzb24oJHJlc3BvbnNlLT5jb250ZW50KTsKCiAg
+bXkgJG9zID0gJGpzb24tPnsnc2VydmVyJ317J29zJ307CgogIGlmICgkb3MgbmUgJ0xpbnV4Jykg
+ewogICAgcHJpbnQgIlx0RmFpbGVkLiBFcnJvcjogU2VydmVyIHByb3BlcnR5IGlzIGludmFsaWQu
+XG4iOwogICAgcmV0dXJuOwogIH0KICAKICByZXR1cm4gJGpzb247Cn0KCgpzdWIgYXN0b3JfZ2V0
+UmVxdWVzdCAKewoJbXkoICRzZWxmLCAkdXJsLCAkcGFyYW1zICkgPSBAXzsKCglteSAkdWEgICAg
+ICAgPSBMV1A6OlVzZXJBZ2VudC0+bmV3KCk7CglteSAkcmVzcG9uc2UgPSAkdWEtPmdldCggJHVy
+bCwgJHBhcmFtcyApOwogIAoJcmV0dXJuICRyZXNwb25zZTsKfQoKCnN1YiBhc3Rvcl9wb3N0UmVx
+dWVzdCAKewoJbXkoICRzZWxmLCAkdXJsLCAkcGFyYW1zICkgPSBAXzsKCglteSAkdWEgICAgICAg
+PSBMV1A6OlVzZXJBZ2VudC0+bmV3KCk7CglteSAkcmVzcG9uc2UgPSAkdWEtPnBvc3QoICR1cmws
+ICRwYXJhbXMgKTsKICAKCXJldHVybiAkcmVzcG9uc2U7Cn0KCgpzdWIgYXN0b3JfZGVsZXRlUmVx
+dWVzdCAKewoJbXkoICRzZWxmLCAkdXJsLCAkcGFyYW1zKSA9IEBfOwoKCW15ICR1YSAgICAgICA9
+IExXUDo6VXNlckFnZW50LT5uZXcoKTsKCW15ICRyZXEgPSBIVFRQOjpSZXF1ZXN0LT5uZXcoREVM
+RVRFID0+ICR1cmwpOwoJbXkgJHJlc3BvbnNlID0gJHVhLT5yZXF1ZXN0KCRyZXEpOwogIAoJcmV0
+dXJuICRyZXNwb25zZTsKfQoKMTs=
+</data>
+        </file>
+        <file>
+          <filename>plugins/EPrints/Plugin/Screen/EPMC/Arkivum.pm</filename>
+          <mime_type>text/plain</mime_type>
+          <hash>251d7cb04c4f0c9241e8532f1520b5c6</hash>
+          <hash_type>MD5</hash_type>
+          <filesize>1504</filesize>
+          <data encoding='base64'>cGFja2FnZSBFUHJpbnRzOjpQbHVnaW46OlNjcmVlbjo6RVBNQzo6QXJraXZ1bTsKIApASVNBID0g
+KCAnRVByaW50czo6UGx1Z2luOjpTY3JlZW46OkVQTUMnICk7CiAKdXNlIHN0cmljdDsKCnN1YiBu
+ZXcKewogICAgICAgbXkoICRjbGFzcywgJXBhcmFtcyApID0gQF87CiAKICAgICAgIG15ICRzZWxm
+ID0gJGNsYXNzLT5TVVBFUjo6bmV3KCAlcGFyYW1zICk7CiAKICAgICAgICRzZWxmLT57YWN0aW9u
+c30gPSBbcXcoIGVuYWJsZSBkaXNhYmxlICldOwogICAgICAgJHNlbGYtPntkaXNhYmxlfSA9IDA7
+ICMgYWx3YXlzIGVuYWJsZWQsIGV2ZW4gaW4gbGliL3BsdWdpbnMKIAogICAgICAgJHNlbGYtPntw
+YWNrYWdlX25hbWV9ID0gIkFya2l2dW0iOwogCiAgICAgICByZXR1cm4gJHNlbGY7Cn0KIAogIApz
+dWIgYWN0aW9uX2VuYWJsZQp7CiAgICAgICBteSggJHNlbGYsICRza2lwX3JlbG9hZCApID0gQF87
+CiAKICAgICAgICRzZWxmLT5TVVBFUjo6YWN0aW9uX2VuYWJsZSggJHNraXBfcmVsb2FkICk7CiAK
+ICAgICAgIG15ICRyZXBvID0gJHNlbGYtPntyZXBvc2l0b3J5fTsKIAogICAgICAgIyBBREQgU1RV
+RkYgSEVSRQogICAgICAgRVByaW50czo6RGF0YU9iajo6RXZlbnRRdWV1ZS0+Y3JlYXRlX3VuaXF1
+ZSggJHJlcG8sIHsKICAgICAgICAgICAgICAgcGx1Z2luaWQgPT4gIkV2ZW50IiwKICAgICAgICAg
+ICAgICAgYWN0aW9uID0+ICJjcm9uIiwKICAgICAgICAgICAgICAgcGFyYW1zID0+IFsiMCwxNSwz
+MCw0NSw2MCAqICogKiAqIiwKICAgICAgICAgICAgICAgICAgICAgICAiRXZlbnQ6OkFya2l2dW0i
+LAogICAgICAgICAgICAgICAgICAgICAgICJhc3Rvcl9jaGVja2VyIiwKICAgICAgICAgICAgICAg
+XSwKICAgICAgIH0pOwogCiAgICAgICAkc2VsZi0+cmVsb2FkX2NvbmZpZyBpZiAhJHNraXBfcmVs
+b2FkOwp9CiAKIApzdWIgYWN0aW9uX2Rpc2FibGUKewogICAgICAgbXkoICRzZWxmLCAkc2tpcF9y
+ZWxvYWQgKSA9IEBfOwogCiAgICAgICAkc2VsZi0+U1VQRVI6OmFjdGlvbl9kaXNhYmxlKCAkc2tp
+cF9yZWxvYWQgKTsKICAgICAgIG15ICRyZXBvID0gJHNlbGYtPntyZXBvc2l0b3J5fTsKIAogICAg
+ICAgIyBBREQgU1RVRkYgSEVSRQoJbXkgJGV2ZW50ID0gRVByaW50czo6RGF0YU9iajo6RXZlbnRR
+dWV1ZS0+bmV3X2Zyb21faGFzaCggJHJlcG8sIHsKICAgICAgICAgICAgICAgcGx1Z2luaWQgPT4g
+IkV2ZW50IiwKICAgICAgICAgICAgICAgYWN0aW9uID0+ICJjcm9uIiwKICAgICAgICAgICAgICAg
+cGFyYW1zID0+IFsiMCwxNSwzMCw0NSw2MCAqICogKiAqIiwKICAgICAgICAgICAgICAgICAgICAg
+ICAiRXZlbnQ6OkFya2l2dW0iLAogICAgICAgICAgICAgICAgICAgICAgICJhc3Rvcl9jaGVja2Vy
+IiwKICAgICAgICAgICAgICAgXSwKICAgICAgIH0pOwogICAgICAgJGV2ZW50LT5kZWxldGUgaWYg
+KGRlZmluZWQgJGV2ZW50KTsgICAgICAgCiAgICAgICAkc2VsZi0+cmVsb2FkX2NvbmZpZyBpZiAh
+JHNraXBfcmVsb2FkOwogCn0KIAoxOw==
+</data>
+        </file>
+        <file>
+          <filename>plugins/EPrints/Plugin/Storage/ArkivumR.pm</filename>
           <mime_type>text/plain</mime_type>
           <hash>a61883bd95702ba0f2dc9eb5cbfd779e</hash>
           <hash_type>MD5</hash_type>
@@ -1093,7 +1203,8 @@ ooP+H3MSznmk71AvAAAAAElFTkSuQmCC
       <content>coverimage</content>
     </document>
   </documents>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
+  <controller>EPMC::Arkivum</controller>
   <creators>
     <item>
       <name>
@@ -1101,6 +1212,13 @@ ooP+H3MSznmk71AvAAAAAElFTkSuQmCC
         <given>Richard</given>
       </name>
       <id>richard.lowe@arkivum.com</id>
+    </item>
+    <item>
+      <name>
+        <family>Pembury</family>
+        <given>Mark</given>
+      </name>
+      <id>mark.pembury@arkivum.com</id>
     </item>
   </creators>
   <title>Arkivum A-Stor Storage Backend</title>

@@ -2,10 +2,12 @@
 #
 # Once done, please remove the comments '#' from the beginning of each line, save this file and then reload the repository config from the Admin screen.
 # 
-$c->{plugins}{"Event::Arkivum"}{params}{disable} = 0;
-$c->{plugins}{"Storage::ArkivumR"}{params}{disable} = 0;
 
 $c->{plugins}->{"Storage::ArkivumR"}->{params}->{mount_path} = "/mnt/archive";
+$c->{plugins}->{"Event::Arkivum"}->{params}->{server_url} = "https://172.18.2.240:8443";
+
+$c->{plugins}{"Event::Arkivum"}{params}{disable} = 0;
+$c->{plugins}{"Storage::ArkivumR"}{params}{disable} = 0;
 
 $c->add_dataset_field( "document", {
 		name => "archive_status",
@@ -13,13 +15,10 @@ $c->add_dataset_field( "document", {
 		options => [ qw(
 			archive_requested
 			archive_approved
-			ingested
-			replicated
-			escrow
+			archived
 			archive_failed
 			delete_requested
 			delete_approved
-			delete_in_progress
 			deleted
 			delete_failed
 		) ],
@@ -44,11 +43,14 @@ $c->add_dataset_field( "astor", {
 		name => "astor_status",
 		type => 'set',
 		options => [ qw(
-			scheduled
+			archive_scheduled
+			ingest_in_progress
 			ingested
 			replicated
 			escrow
 			archive_failed
+			delete_scheduled
+			delete_in_progress
 			deleted
 			delete_failed
 		) ],

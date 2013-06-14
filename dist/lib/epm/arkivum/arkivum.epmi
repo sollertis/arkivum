@@ -8,16 +8,16 @@
         <file>
           <filename>epm/arkivum/cfg/cfg.d/arkivum.pl</filename>
           <mime_type>text/plain</mime_type>
-          <hash>d86c4e5249a11fa6bb2f7de53ed7ae10</hash>
+          <hash>4fa51c5f272d6cfd178c91c28105be79</hash>
           <hash_type>MD5</hash_type>
-          <filesize>735</filesize>
+          <filesize>2484</filesize>
         </file>
         <file>
           <filename>plugins/EPrints/Plugin/Event/Arkivum.pm</filename>
           <mime_type>text/plain</mime_type>
-          <hash>8a6792814aa8d735a45d35bbeac7bc46</hash>
+          <hash>e8e9dedc0e8e7f8260859b8a240eb4ef</hash>
           <hash_type>MD5</hash_type>
-          <filesize>3383</filesize>
+          <filesize>7309</filesize>
         </file>
         <file>
           <filename>plugins/EPrints/Plugin/Screen/EPMC/Arkivum.pm</filename>
@@ -81,6 +81,19 @@
   </creators>
   <title>Arkivum A-Stor Storage Backend</title>
   <description>Use Arkivum&apos;s assured archive service to keep EPrints documents safe and secure for the long-term, with 100% guarantee against data loss.</description>
+  <requirements>You will need to ensure the following Perl modules are installed:
+
+IO::Socket::SSL
+DateTime
+DateTime::Format::ISO8601
+
+on debian this can be donw with the following: 
+
+apt-get install libio-socket-ssl-perl
+apt-get install libdatetime-perl
+apt-get install libdatetime-format-iso8601-perl
+
+</requirements>
   <home_page>http://www.arkivum.com</home_page>
   <icon>images/epm/arkivum.png</icon>
 </epm>

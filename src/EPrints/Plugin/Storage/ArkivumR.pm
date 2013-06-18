@@ -72,6 +72,7 @@ sub close_write
 
 sub delete
 {
+
 	my( $self, $fileobj, $sourceid ) = @_;
 
 	my( $path, $fn ) = $self->_filename( $fileobj, $sourceid );

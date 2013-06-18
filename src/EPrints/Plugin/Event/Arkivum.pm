@@ -294,14 +294,13 @@ sub astor_delete
 	# Process all files attached to the document
 	foreach my $file (@{$doc->get_value( "files" )})
 	{
-		my $filename = $file->get_local_copy();
-
-		# Delete the copy stored on the A-Stor server
+		# Delete the file stored on the A-Stor plugin
 		my $ok = $storage->delete_copy( $plugin, $file);
 		if (not $ok) {
 			$self->__log("astor_delete: Error deleting $filename from A-Stor...");
 			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 		}
+
 		$self->__log("astor_delete: Deleted $filename from A-Stor for Document $docid...");
 	}
 
@@ -529,6 +528,23 @@ sub __astor_getFileInfo
 }
 
 
+sub __astor_deleteFile
+{
+	my( $self, $filename) = @_;
+
+	my $api_url = "/json/search/files/" . $filename;
+
+	my $response = $self->__astor_deleteRequest($api_url);
+	if ( not defined $response )
+	{
+		$self->__log("__astor_getFileInfo: Invalid response returned...");
+		return;
+	}
+  
+	return $response;
+}
+
+
 sub __astor_getRequest 
 {
 	my( $self, $url, $params ) = @_;
@@ -538,20 +554,6 @@ sub __astor_getRequest
 
 	my $ua       = LWP::UserAgent->new();
 	my $response = $ua->get( $server_url, $params );
-  
-	return $response;
-}
-
-
-sub __astor_postRequest 
-{
-	my( $self, $url, $params ) = @_;
-
-	my $ark_server = $self->param( "server_url" );
-	my $server_url = $ark_server . $url;
-
-	my $ua       = LWP::UserAgent->new();
-	my $response = $ua->post( $server_url, $params );
   
 	return $response;
 }

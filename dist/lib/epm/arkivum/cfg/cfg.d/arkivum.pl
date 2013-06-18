@@ -25,7 +25,8 @@ $c->add_dataset_field( "document", {
 	}, 
 );
 
-$c->add_dataset_field( "document", { name=>"astors", type=>"subobject", datasetid=>'astor', multiple=>1, text_index=>1, dataobj_fieldname=>'docid' }, );
+# Comment out the subobject field in documents as this does not work at the moment.
+#$c->add_dataset_field( "document", { name=>"astors", type=>"subobject", datasetid=>'astor', multiple=>1, text_index=>1, dataobj_fieldname=>'docid' }, );
 
 $c->{datasets}->{astor} = {
         class => "EPrints::DataObj::Astor",

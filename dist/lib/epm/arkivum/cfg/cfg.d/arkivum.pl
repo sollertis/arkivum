@@ -3,7 +3,7 @@
 # Once done, please remove the comments '#' from the beginning of each line, save this file and then reload the repository config from the Admin screen.
 # 
 
-$c->{plugins}->{"Storage::ArkivumR"}->{params}->{mount_path} = "/mnt/archive";
+$c->{plugins}->{"Storage::ArkivumR"}->{params}->{mount_path} = "/mnt/arkivum";
 $c->{plugins}->{"Event::Arkivum"}->{params}->{server_url} = "https://172.18.2.240:8443";
 
 $c->{plugins}{"Event::Arkivum"}{params}{disable} = 0;

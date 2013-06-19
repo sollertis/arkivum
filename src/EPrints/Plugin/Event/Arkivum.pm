@@ -7,6 +7,7 @@ use LWP::UserAgent;
 use feature qw{ switch };
 use Data::Dumper;
 
+
 sub new
 {
     my( $class, %params ) = @_;
@@ -23,6 +24,7 @@ sub new
  
     return $self;
 }
+
 
 sub astor_checker 
 {
@@ -102,11 +104,30 @@ sub astor_copy
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	# We have contact with the server and have the statuxs
+	# We have contact with the server and have the status
 	# so check the free space before we do anything
 	my $freespace = $json->{'storage'}{'bytesFree'};
+	my $totalsize = 0;
+
+	# We need to check the freespace before we copy the file(s)
+	# Over to A-Stor. We should only have one file per document
+	# but this may change so we will get and check all files 
+	# attached to the document before copying them over.
+	foreach my $file (@{$doc->get_value( "files" )})
+	{
+		my $filesize = $file->value( "filesize" );
+		$totalsize = $totalsize + $filesize;
+	}
 	
-	# Process all files attached to the document
+	# Now we have the total size in bytes of this copy request
+	# we can check the freespace and abort is we don't have
+	# enough
+	if ( $totalsize > $freespace ) {
+		$self->__log("astor_copy: Not enough freespace on A-Stor, copy aborted...");
+		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
+	}
+
+	# Copy all files attached to the document
 	foreach my $file (@{$doc->get_value( "files" )})
 	{
 		# Get the remapped file path so we can find it within A-Stor
@@ -204,7 +225,6 @@ sub astor_status_checker
 					$self->__update_astor_record($astorid, "astor_status", "archive_failed");
 					return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 				}
-				print "MD5 checksums matched\n";
 				$state_count = $state_count + 1;
 			}
 		  }
@@ -295,11 +315,20 @@ sub astor_delete
 	foreach my $file (@{$doc->get_value( "files" )})
 	{
 		# Delete the file stored on the A-Stor plugin
-		my $ok = $storage->delete_copy( $plugin, $file);
-		if (not $ok) {
-			$self->__log("astor_delete: Error deleting $filename from A-Stor...");
+		my $filename = $self->__map_to_ark_path($file->get_local_copy());
+
+		my $response = $self->__astor_deleteFile($filename);
+		if ($response->is_error) 
+		{
+			$self->__log("astor_delete: Error invalid response returned: " . $response->status_line);
 			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 		}
+
+#		my $ok = $storage->delete_copy( $plugin, $file);
+#		if (not $ok) {
+#			$self->__log("astor_delete: Error deleting $filename from A-Stor...");
+#			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
+#		}
 
 		$self->__log("astor_delete: Deleted $filename from A-Stor for Document $docid...");
 	}
@@ -532,8 +561,8 @@ sub __astor_deleteFile
 {
 	my( $self, $filename) = @_;
 
-	my $api_url = "/json/search/files/" . $filename;
-
+	my $api_url = "/files" . $filename;
+	
 	my $response = $self->__astor_deleteRequest($api_url);
 	if ( not defined $response )
 	{
@@ -565,7 +594,7 @@ sub __astor_deleteRequest
 
 	my $ark_server = $self->param( "server_url" );
 	my $server_url = $ark_server . $url;
-
+	
 	my $ua       = LWP::UserAgent->new();
 	my $req = HTTP::Request->new(DELETE => $server_url);
 	my $response = $ua->request($req);

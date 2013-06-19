@@ -24,8 +24,6 @@ To enable this module you must specify the mount path where the Arkivum applianc
 
 package EPrints::Plugin::Storage::ArkivumR;
 
-# NOTE: This is Richard's "flavour" of the Arkivum storage plugin... everyone seems to have their own!
-
 use Fcntl qw( SEEK_SET :DEFAULT );
 
 use EPrints::Plugin::Storage;
@@ -299,8 +297,6 @@ sub _map_to_ark_path {
 	# Replace the local root path with the Arkivum mount path
 	my $mapped_path = $local_path;
 	$mapped_path =~ s#$local_root_path#$ark_mount_path#;
-	
-	$self->_log("Mapped Path: $mapped_path");
 	
 	return $mapped_path;
 }

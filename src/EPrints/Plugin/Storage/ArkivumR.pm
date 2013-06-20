@@ -106,6 +106,17 @@ sub get_local_copy
 	return -r "$path/$fn" ? "$path/$fn" : undef;
 }
 
+sub get_remote_copy
+{
+	my( $self, $fileobj, $sourceid ) = @_;
+
+	my( $path, $fn ) = $self->_filename( $fileobj, $sourceid );
+
+	return undef if !defined $path;
+
+	return -r "$path/$fn" ? "$path/$fn" : undef;
+}
+
 sub open_read
 {
 	my( $self, $fileobj, $sourceid, $f ) = @_;

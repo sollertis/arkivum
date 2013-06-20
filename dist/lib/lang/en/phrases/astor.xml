@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE phrases SYSTEM "entities.dtd">
+<epp:phrases xmlns="http://www.w3.org/1999/xhtml" xmlns:epp="http://eprints.org/ep3/phrase" xmlns:epc="http://eprints.org/ep3/control">
+
+<epp:phrase id="datasetname_astor">Astor Requests</epp:phrase>
+<epp:phrase id="datasethelp_astor">Escrow storage requests.</epp:phrase>
+<epp:phrase id="astor_fieldname_astorid">Id</epp:phrase>
+<epp:phrase id="astor_fieldname_docid">Document</epp:phrase>
+<epp:phrase id="astor_fieldname_checksum">Astor Checksum</epp:phrase>
+<epp:phrase id="astor_fieldname_justification">Reason</epp:phrase>
+<epp:phrase id="astor_fieldname_access_date">Access Date</epp:phrase>
+<epp:phrase id="astor_fieldname_astor_status">Astor Status</epp:phrase>
+<epp:phrase id="astor_fieldname_userid">Owner</epp:phrase>
+
+
+<epp:phrase id="document_fieldopt_archive_status_archive_requested">Archiving Requested</epp:phrase>
+<epp:phrase id="document_fieldopt_archive_status_archive_approved">Archiving Approved</epp:phrase>
+<epp:phrase id="document_fieldopt_archive_status_archived">Archived</epp:phrase>
+<epp:phrase id="document_fieldopt_archive_status_archive_failed">Archiving Failed</epp:phrase>
+<epp:phrase id="document_fieldopt_archive_status_delete_requested">Deletion Requested</epp:phrase>
+<epp:phrase id="document_fieldopt_archive_status_delete_approved">Deletion Approved</epp:phrase>
+<epp:phrase id="document_fieldopt_archive_status_deleted">Deleted</epp:phrase>
+<epp:phrase id="document_fieldopt_archive_status_delete_failed">Deletion Failed</epp:phrase>
+
+<epp:phrase id="astor_fieldopt_astor_status_archive_scheduled">File Scheduled for Archiving</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_ingest_in_progress">File Being Archived</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_ingested">File Copied to Appliance</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_replicated">File Replicated to Data Centre</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_escrow">File Securely Archived</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_delete_scheduled">File Scheduled for Deletion</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_delete_in_progress">File Deletion In Progress</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_deleted">File Deleted From A-Stor</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_archive_failed">File Archive Failed</epp:phrase>
+<epp:phrase id="astor_fieldopt_astor_status_delete_failed">File Deletion Failed</epp:phrase>
+
+<epp:phrase id="Plugin/Screen/EPrint/Document/AStor:title">Manage archival storage</epp:phrase>
+<epp:phrase id="Plugin/Screen/EPrint/Document/AStor:help">HELP TEXT</epp:phrase>
+<epp:phrase id="Plugin/Screen/Workflow/AStorApprove:title">Approve</epp:phrase>
+<epp:phrase id="Plugin/Screen/Workflow/AStorApprove:confirm_archive">Are you sure you want to allow archiving to proceed for:<br />
+<div class="ep_block">
+<epc:pin name="eprint"></epc:pin>
+</div>
+<div class="ep_block">
+<epc:pin name="document"></epc:pin>
+</div>
+</epp:phrase>
+<epp:phrase id="Plugin/Screen/Workflow/AStorApprove:action:archive:title">Archive</epp:phrase>
+<epp:phrase id="Plugin/Screen/Workflow/AStorApprove:action:delete:title">Delete</epp:phrase>
+
+
+</epp:phrases>

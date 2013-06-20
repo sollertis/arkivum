@@ -30,6 +30,7 @@ sub astor_checker
 {
 	my ( $self ) = @_;
 
+	my $ark_server = $self->param( "server_url" );
 	if (not defined $ark_server)
 	{
 		$self->__log("Arkivum server URL not set-up");
@@ -39,6 +40,22 @@ sub astor_checker
 	$self->__log("Running astor_checker to check for astor_status values that need processing...");
 
    	my $repository = $self->{repository};
+	
+	# Count the number of records in the astor dataset so we don't try to process 
+	# when we don't need too
+	my $ds = $repository->dataset( "astor" );
+
+	my $rcount = $ds->count( $repository );
+	if ( not defined $rcount )
+	{
+		$self->__log("astor_checker: Dataset astor not found");
+		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
+	}	
+
+	if ( $rcount == 0)
+	{
+		return EPrints::Const::HTTP_OK;
+	}
 	
 	# Process documents approved for archive
 	$self->__process_requests( "astor", "astor_status", "archive_scheduled", "astor_copy");

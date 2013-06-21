@@ -4,10 +4,13 @@
 # 
 
 $c->{plugins}->{"Storage::ArkivumR"}->{params}->{mount_path} = "/mnt/arkivum";
+$c->{plugins}->{"Storage::ArkivumR"}->{params}->{server_url} = "https://172.18.2.240:8443";
 $c->{plugins}->{"Event::Arkivum"}->{params}->{server_url} = "https://172.18.2.240:8443";
 
 $c->{plugins}{"Event::Arkivum"}{params}{disable} = 0;
 $c->{plugins}{"Storage::ArkivumR"}{params}{disable} = 0;
+$c->{plugins}{"Screen::EPrint::Document::AStor"}{params}{disable} = 0;
+$c->{plugins}{"Screen::Workflow::AStorApprove"}{params}{disable} = 0;
 
 $c->add_dataset_field( "document", {
 		name => "archive_status",
@@ -25,8 +28,7 @@ $c->add_dataset_field( "document", {
 	}, 
 );
 
-# Comment out the subobject field in documents as this does not work at the moment.
-#$c->add_dataset_field( "document", { name=>"astors", type=>"subobject", datasetid=>'astor', multiple=>1, text_index=>1, dataobj_fieldname=>'docid' }, );
+$c->add_dataset_field( "document", { name=>"astors", type=>"subobject", datasetid=>'astor', multiple=>1, text_index=>1, dataset_fieldname=>'', dataobj_fieldname=>'docid' }, );
 
 $c->{datasets}->{astor} = {
         class => "EPrints::DataObj::Astor",
@@ -36,8 +38,17 @@ $c->{datasets}->{astor} = {
 
 # Add fields to the dataset
 $c->add_dataset_field( "astor", { name=>"astorid", type=>"counter", required=>1, can_clone=>0, sql_counter=>"astorid" }, );
+$c->add_dataset_field( "astor", { name=>"userid", type=>"itemref", datasetid=>'user', required=>1, }, );
 $c->add_dataset_field( "astor", { name=>"docid", type=>"itemref", datasetid=>'document', required=>1, }, );
-$c->add_dataset_field( "astor", { name=>"checksum", type=>"id", required=>0, }, );
+$c->add_dataset_field( "astor", {
+	name => "hash",
+	type => "multipart",
+	fields => [
+		{ sub_name => "filename", type => "id", },
+		{ sub_name => "hash", type => "id", },
+	],
+	multiple => 1,
+});
 $c->add_dataset_field( "astor", { name=>"justification", type=>"longtext", required=>0, }, );
 $c->add_dataset_field( "astor", { name=>"access_date", type=>"time", required=>0, }, );
 $c->add_dataset_field( "astor", {
@@ -58,12 +69,18 @@ $c->add_dataset_field( "astor", {
 	}, 
 );
 
+push @{$c->{user_roles}{admin}}, qw(
+	+astor/destroy
+	+astor/details
+	+astor/edit
+	+astor/view
+);
 
 # Define the class, this can either be done using a new file in the right place, or by using this override trick, open a '{' and then continue as it this is new file
 {
         package EPrints::DataObj::Astor;
 
-        our @ISA = qw( EPrints::DataObj );
+        our @ISA = qw( EPrints::DataObj::SubObject );
 
         # The new method can simply return the constructor of the super class (Dataset)
         sub new
@@ -78,5 +95,28 @@ $c->add_dataset_field( "astor", {
                 return "astor";
         }
 
+		sub parent
+		{
+			my ($self) = @_;
+
+			my $docid = $self->value('docid');
+			return if !$docid;
+
+			return $self->{session}->dataset('document')->dataobj($docid);
+		}
+
+		sub remove
+		{
+			my ($self) = @_;
+
+			my $doc = $self->parent;
+			if (defined $doc)
+			{
+				$doc->set_value('archive_status', undef);
+				$doc->commit;
+			}
+
+			return $self->SUPER::remove();
+		}
 }
 

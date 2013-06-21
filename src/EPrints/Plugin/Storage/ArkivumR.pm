@@ -27,6 +27,8 @@ package EPrints::Plugin::Storage::ArkivumR;
 use Fcntl qw( SEEK_SET :DEFAULT );
 
 use EPrints::Plugin::Storage;
+use JSON qw(decode_json);
+use LWP::UserAgent;
 
 @ISA = ("EPrints::Plugin::Storage");
 
@@ -70,21 +72,35 @@ sub close_write
 
 sub delete
 {
-
 	my( $self, $fileobj, $sourceid ) = @_;
-
+	
 	my( $path, $fn ) = $self->_filename( $fileobj, $sourceid );
 
 	return undef if !defined $path;
 
 	return 1 if !-e "$path/$fn";
+	
+	# Get the status info from A-Stor to check the service is available
+	my $json = $self->__astor_getStatusInfo();
+	if ( not defined $json ) {
+		$self->_log("ArkivumStorage: A-Stor service not available..");
+		return 0;
+	}
 
-	return 0 if !unlink("$path/$fn");
+	# We need to remove the file from A-Stor using the REST API
+	my $filename = $self->_map_to_astor_path($fileobj->get_local_copy());
 
+	my $response = $self->__astor_deleteFile($filename);
+	if ($response->is_error) 
+	{
+		$self->_log("ArkivumR: Error invalid response returned: " . $response->status_line);
+		return 0;
+	}
+
+	# remove empty leaf directories (e.g. document dir)
 	my @parts = split /\//, $fn;
 	pop @parts;
 
-	# remove empty leaf directories (e.g. document dir)
 	for(reverse 0..$#parts)
 	{
 		my $dir = join '/', $path, @parts[0..$_];
@@ -290,6 +306,7 @@ sub _log {
 	$self->{session}->get_repository->log($msg);
 }
 
+
 sub _map_to_ark_path {
 	
 	my( $self, $local_path) = @_;
@@ -311,6 +328,102 @@ sub _map_to_ark_path {
 	
 	return $mapped_path;
 }
+
+
+sub _map_to_astor_path {
+	
+	my( $self, $local_path) = @_;
+	
+	# Get the root path for repository as it would be on local storage
+	my $repo = $self->{session}->get_repository;
+	my $local_root_path = $repo->get_conf( "archiveroot" );
+
+	# Start to build the astor path relative to the repository
+	my $astor_mount_path = '/' . $repo->id;
+	
+	# Replace the local root path with the A-Stor relative path
+	my $mapped_path = $local_path;
+	$mapped_path =~ s#$local_root_path#$astor_mount_path#;
+	
+	return $mapped_path;
+}
+
+
+sub __astor_getStatusInfo 
+{
+	my( $self ) = @_;
+
+	my $api_url = "/json/status/info/";
+	
+	my $response = $self->__astor_getRequest($api_url);
+	if ( not defined $response )
+	{
+		$self->_log("Inavlid response returned in __astor_getStatus");
+		return;
+	}
+
+	if ($response->is_error) 
+	{
+		$self->_log("Invalid response returned in __astor_getStatus: $response->status_line");
+		return;
+	}
+  
+	# Get the content which should be a json string
+	my $json = decode_json($response->content);
+	if ( not defined $json) {
+		$self->_log("Invalid response returned in __astor_getStatus");
+		return;
+	}
+  
+	return $json;
+}
+
+
+sub __astor_deleteFile
+{
+	my( $self, $filename) = @_;
+
+	my $api_url = "/files" . $filename;
+	
+	my $response = $self->__astor_deleteRequest($api_url);
+	if ( not defined $response )
+	{
+		$self->_log("__astor_getFileInfo: Invalid response returned...");
+		return;
+	}
+  
+	return $response;
+}
+
+
+sub __astor_getRequest 
+{
+	my( $self, $url, $params ) = @_;
+
+	my $ark_server = $self->param( "server_url" );
+	my $server_url = $ark_server . $url;
+
+	my $ua       = LWP::UserAgent->new();
+	my $response = $ua->get( $server_url, $params );
+  
+	return $response;
+}
+
+
+sub __astor_deleteRequest 
+{
+	my( $self, $url, $params) = @_;
+
+	my $ark_server = $self->param( "server_url" );
+	my $server_url = $ark_server . $url;
+	
+	my $ua       = LWP::UserAgent->new();
+	my $req = HTTP::Request->new(DELETE => $server_url);
+	my $response = $ua->request($req);
+
+	return $response;
+}
+
 
 sub _set_debug {
 	my ( $self, $enabled) = @_;

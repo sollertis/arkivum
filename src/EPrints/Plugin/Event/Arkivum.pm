@@ -20,7 +20,7 @@ sub new
     $self->{package_name} = "Arkivum";
 
 	# Enable debug logging
-	$self->__set_debug(1);
+	$self->_set_debug(1);
  
     return $self;
 }
@@ -33,11 +33,11 @@ sub astor_checker
 	my $ark_server = $self->param( "server_url" );
 	if (not defined $ark_server)
 	{
-		$self->__log("Arkivum server URL not set-up");
+		$self->_log("Arkivum server URL not set-up");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	$self->__log("Running astor_checker to check for astor_status values that need processing...");
+	$self->_log("Running astor_checker to check for astor_status values that need processing...");
 
    	my $repository = $self->{repository};
 	
@@ -48,7 +48,7 @@ sub astor_checker
 	my $rcount = $ds->count( $repository );
 	if ( not defined $rcount )
 	{
-		$self->__log("astor_checker: Dataset astor not found");
+		$self->_log("astor_checker: Dataset astor not found");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}	
 
@@ -58,24 +58,24 @@ sub astor_checker
 	}
 	
 	# Process documents approved for archive
-	$self->__process_requests( "astor", "astor_status", "archive_scheduled", "astor_copy");
+	$self->_process_requests( "astor", "astor_status", "archive_scheduled", "astor_copy");
 	
 	# Process documents which are ingesting
-	$self->__process_requests( "astor", "astor_status", "ingest_in_progress", "astor_status_checker");
+	$self->_process_requests( "astor", "astor_status", "ingest_in_progress", "astor_status_checker");
 
 	# Process documents which are replicating
-	$self->__process_requests( "astor", "astor_status", "ingested", "astor_status_checker");
+	$self->_process_requests( "astor", "astor_status", "ingested", "astor_status_checker");
 
 	# Process documents which are replicating
-	$self->__process_requests( "astor", "astor_status", "replicated", "astor_status_checker");
+	$self->_process_requests( "astor", "astor_status", "replicated", "astor_status_checker");
 
 	# Process documents approved for deletion
-	$self->__process_requests( "astor", "astor_status", "delete_scheduled", "astor_delete");
+	$self->_process_requests( "astor", "astor_status", "delete_scheduled", "astor_delete");
 
 	# Process documents that are being removed by A-Stor deletion
-	$self->__process_requests( "astor", "astor_status", "delete_in_progress", "astor_delete_checker");
+	$self->_process_requests( "astor", "astor_status", "delete_in_progress", "astor_delete_checker");
 
-	$self->__log("Finished astor_checker...");
+	$self->_log("Finished astor_checker...");
  
    	return EPrints::Const::HTTP_OK;
 }
@@ -92,17 +92,17 @@ sub astor_copy
 	my $doc = new EPrints::DataObj::Document( $repository, $docid );
 	if ( not defined $doc )
 	{
-		$self->__log("Document: $docid not found");
+		$self->_log("Document: $docid not found");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	$self->__log("astor_copy: Copying Document $docid...");
+	$self->_log("astor_copy: Copying Document $docid...");
 
 	# Get the storage controller object
 	my $storage = $repository->get_storage();
 	if ( not defined $storage )
 	{
-		$self->__log("astor_copy: Could not get the storage controller for Document $docid...");
+		$self->_log("astor_copy: Could not get the storage controller for Document $docid...");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
@@ -110,14 +110,14 @@ sub astor_copy
 	my $plugin = $repository->plugin( "Storage::ArkivumR" );
 	if ( not defined $plugin )
 	{
-		$self->__log("astor_copy: Could not get the A-Stor plugin for Document $docid...");
+		$self->_log("astor_copy: Could not get the A-Stor plugin for Document $docid...");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
 	# Get the status info of the A-Stor server
-	my $json = $self->__astor_getStatusInfo();
+	my $json = $self->_astor_getStatusInfo();
 	if ( not defined $json ) {
-		$self->__log("astor_copy: A-Stor service not available..");
+		$self->_log("astor_copy: A-Stor service not available..");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
@@ -140,7 +140,7 @@ sub astor_copy
 	# we can check the freespace and abort is we don't have
 	# enough
 	if ( $totalsize > $freespace ) {
-		$self->__log("astor_copy: Not enough freespace on A-Stor, copy aborted...");
+		$self->_log("astor_copy: Not enough freespace on A-Stor, copy aborted...");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
@@ -148,21 +148,24 @@ sub astor_copy
 	foreach my $file (@{$doc->get_value( "files" )})
 	{
 		# Get the remapped file path so we can find it within A-Stor
-		my $filename = $self->__map_to_ark_path($file->get_local_copy());
+		my $filename = $self->_map_to_astor_path($file->get_local_copy());
 
 		# Copy the file to A-Stor
 		my $ok = $storage->copy( $plugin, $file);
 		if (not $ok) {
-			$self->__log("astor_copy: Error copying $filename to A-Stor...");
+			$self->_log("astor_copy: Error copying $filename to A-Stor...");
 			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 		}
-		$self->__log("astor_copy: Copied $filename to A-Stor for Document $docid...");
+		# Commit the changes to the file object otherwise it doesn't persist
+		$file->commit();
+
+		$self->_log("astor_copy: Copied $filename to A-Stor for Document $docid...");
 	}
 	
 	# Update the astor record to indicate where we are with the ingest
-	$self->__update_astor_record($astorid, "astor_status", "ingest_in_progress");
+	$self->_update_astor_record($astorid, "astor_status", "ingest_in_progress");
 
-	$self->__log("astor_copy: Copy Completed for Document $docid...");
+	$self->_log("astor_copy: Copy Completed for Document $docid...");
 	
 	return EPrints::Const::HTTP_OK;
 }
@@ -177,18 +180,18 @@ sub astor_status_checker
 	my $doc = new EPrints::DataObj::Document( $repository, $docid );
 	if ( not defined $doc ) 
 	{
-		$self->__log("Document $docid not found in astor_status_checker");
+		$self->_log("Document $docid not found in astor_status_checker");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
 	my $astor = new EPrints::DataObj::Astor( $repository, $astorid );
 	if ( not defined $astor ) 
 	{
-		$self->__log("Astor record $astorid not found in astor_status_checker");
+		$self->_log("Astor record $astorid not found in astor_status_checker");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	$self->__log("astor_status_checker: Checking Document $docid...");
+	$self->_log("astor_status_checker: Checking Document $docid...");
 	
 	# Get the current state of the astor record of the document
 	my $astor_status = $astor->get_value( "astor_status" );
@@ -206,13 +209,13 @@ sub astor_status_checker
 	foreach my $file (@{$doc->get_value( "files" )})
 	{
 		# Get the remapped file path so we can find it within A-Stor
-		my $filename = $self->__map_to_ark_path($file->get_local_copy());
+		my $filename = $self->_map_to_astor_path($file->get_local_copy());
 		
 		# Search for the file information so we can extract the state values we need
-		my $fileInfo = $self->__astor_getFileInfo($filename);
+		my $fileInfo = $self->_astor_getFileInfo($filename);
 		if ( not defined $fileInfo )
 		{
-			$self->__log("astor_status_checker: Error getting file info from A-Stor for Document $docid..");
+			$self->_log("astor_status_checker: Error getting file info from A-Stor for Document $docid..");
 			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 		}
 		
@@ -220,7 +223,7 @@ sub astor_status_checker
 		my $rcount = @{$fileInfo->{"results"}};
 		if ( $rcount ne 1 )
 		{
-			$self->__log("astor_status_checker: No file info returned from A-Stor for Document $docid..");
+			$self->_log("astor_status_checker: No file info returned from A-Stor for Document $docid..");
 			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 		}
 		
@@ -236,10 +239,21 @@ sub astor_status_checker
 				# We should check the MD5 Checksum of the file in both EPrints and A-Stor 
 				# to ensure they are the same. If they are not then we report this and 
 				# stop the copy process
-				my $eprintsMD5 = $file->generate_md5();
+
+				# First get the md5 checksum from the eprints file
+				# We will need to check it exists and that its type is md5
+				# if it does not exist or its not md5 then we generate one
+				my $hashType = $file->get_value( "hash_type" );
+
+				if ( not defined $hashType or $hashType ne 'MD5' ) {
+					$file->update_md5();
+					$file->commit();
+				}
+				my $eprintsMD5 = $file->get_value( "hash" );
+		
 				if ( $eprintsMD5 ne $astorMD5 ) {
-					$self->__log("astor_status_checker: File checksum in eprints does not match A-Stor for $filename in document $docid..");
-					$self->__update_astor_record($astorid, "astor_status", "archive_failed");
+					$self->_log("astor_status_checker: File checksum in eprints does not match A-Stor for $filename in document $docid..");
+					$self->_update_astor_record($astorid, "astor_status", "archive_failed");
 					return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 				}
 				$state_count = $state_count + 1;
@@ -268,23 +282,23 @@ sub astor_status_checker
 	if ( $state_count == $file_count) {
 		given ($astor_status) {
 		  when(/^ingest_in_progress/) {
-			$self->__update_astor_record($astorid, "astor_status", "ingested");
+			$self->_update_astor_record($astorid, "astor_status", "ingested");
 		  }
 		  when(/^ingested/) { 
-			$self->__update_astor_record($astorid, "astor_status", "replicated");
+			$self->_update_astor_record($astorid, "astor_status", "replicated");
 		  }
 		  when(/^replicated/) { 
-			$self->__update_astor_record($astorid, "astor_status", "escrow");
-			$self->__update_document_record($docid, "archive_status", "archived");
+			$self->_update_astor_record($astorid, "astor_status", "escrow");
+			$self->_update_document_record($docid, "archive_status", "archived");
 		  }
 		  when(/^delete_in_progress/) {
-			$self->__update_astor_record($astorid, "astor_status", "deleted");
-			$self->__update_document_record($docid, "archive_status", "deleted");
+			$self->_update_astor_record($astorid, "astor_status", "deleted");
+			$self->_update_document_record($docid, "archive_status", "deleted");
 		  }
 		}
 	}
 
-	$self->__log("astor_status_checker: Checking completed for Document $docid...");
+	$self->_log("astor_status_checker: Checking completed for Document $docid...");
 
 	return EPrints::Const::HTTP_OK;
 }
@@ -299,17 +313,17 @@ sub astor_delete
 	my $doc = new EPrints::DataObj::Document( $repository, $docid );
 	if ( not defined $doc ) 
 	{
-		$self->__log("astor_delete: Document $docid not found...");
+		$self->_log("astor_delete: Document $docid not found...");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	$self->__log("astor_copy: Deleting Document $docid from A-Stor...");
+	$self->_log("astor_deleting: Deleting Document $docid from A-Stor...");
 
 	# Get the storage controller object
 	my $storage = $repository->get_storage();
 	if ( not defined $storage )
 	{
-		$self->__log("astor_delete: Could not get the storage controller for Document $docid...");
+		$self->_log("astor_delete: Could not get the storage controller for Document $docid...");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
@@ -317,14 +331,14 @@ sub astor_delete
 	my $plugin = $repository->plugin( "Storage::ArkivumR" );
 	if ( not defined $plugin )
 	{
-		$self->__log("astor_delete: Could not get the A-Stor plugin for Document $docid...");
+		$self->_log("astor_delete: Could not get the A-Stor plugin for Document $docid...");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
 	# Get the status info of the A-Stor server
-	my $json = $self->__astor_getStatusInfo();
+	my $json = $self->_astor_getStatusInfo();
 	if ( not defined $json ) {
-		$self->__log("astor_delete: A-Stor service not available..");
+		$self->_log("astor_delete: A-Stor service not available..");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
@@ -332,28 +346,24 @@ sub astor_delete
 	foreach my $file (@{$doc->get_value( "files" )})
 	{
 		# Delete the file stored on the A-Stor plugin
-		my $filename = $self->__map_to_ark_path($file->get_local_copy());
-
-		my $response = $self->__astor_deleteFile($filename);
-		if ($response->is_error) 
-		{
-			$self->__log("astor_delete: Error invalid response returned: " . $response->status_line);
+		my $filename = $self->_map_to_astor_path($file->get_local_copy());
+		
+		my $ok = $storage->delete_copy( $plugin, $file );
+		if (not $ok) {
+			$self->_log("astor_delete: Error deleting $filename from A-Stor...");
 			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 		}
+		
+		# Commit the changes to the file object otherwise it doesnt't persist
+		$file->commit();
 
-#		my $ok = $storage->delete_copy( $plugin, $file);
-#		if (not $ok) {
-#			$self->__log("astor_delete: Error deleting $filename from A-Stor...");
-#			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
-#		}
-
-		$self->__log("astor_delete: Deleted $filename from A-Stor for Document $docid...");
+		$self->_log("astor_delete: Deleted $filename from A-Stor for Document $docid...");
 	}
 
 	# Update the A-Stor record to indicate where we are with the ingest
-	$self->__update_astor_record($astorid, "astor_status", "delete_in_progress");
+	$self->_update_astor_record($astorid, "astor_status", "delete_in_progress");
 
-	$self->__log("astor_delete: Delete completed for Document $docid...");
+	$self->_log("astor_delete: Delete completed for Document $docid...");
 
 	return EPrints::Const::HTTP_OK;
 }
@@ -369,18 +379,18 @@ sub astor_delete_checker
 	my $doc = new EPrints::DataObj::Document( $repository, $docid );
 	if ( not defined $doc ) 
 	{
-		$self->__log("astor_delete_checker: Document $docid not found");
+		$self->_log("astor_delete_checker: Document $docid not found");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
 	my $astor = new EPrints::DataObj::Astor( $repository, $astorid );
 	if ( not defined $astor ) 
 	{
-		$self->__log("astor_delete_checker: Astor record $astorid not found");
+		$self->_log("astor_delete_checker: Astor record $astorid not found");
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	$self->__log("astor_delete_checker: Checking Document $docid...");
+	$self->_log("astor_delete_checker: Checking Document $docid...");
 
 	# Get the current state of the astor record of the document
 	my $astor_status = $astor->get_value( "astor_status" );
@@ -394,13 +404,13 @@ sub astor_delete_checker
 	foreach my $file (@{$doc->get_value( "files" )})
 	{
 		# Get the remapped file path so we can find it within A-Stor
-		my $filename = $self->__map_to_ark_path($file->get_local_copy());
+		my $filename = $self->_map_to_astor_path($file->get_local_copy());
 		
 		# Search for the file information so we can extract the state values we need
-		my $fileInfo = $self->__astor_getFileInfo($filename);
+		my $fileInfo = $self->_astor_getFileInfo($filename);
 		if ( not defined $fileInfo )
 		{
-			$self->__log("astor_delete_checker: Error getting file info from A-Stor for Document $docid..");
+			$self->_log("astor_delete_checker: Error getting file info from A-Stor for Document $docid..");
 			return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 		}
 		
@@ -415,18 +425,18 @@ sub astor_delete_checker
 	if ( $state_count == 0) {
 		if ( $astor_status eq "delete_in_progress" ) 
 		{
-			$self->__update_astor_record($astorid, "astor_status", "deleted");
-			$self->__update_document_record($docid, "archive_status", "deleted");
+			$self->_update_astor_record($astorid, "astor_status", "deleted");
+			$self->_update_document_record($docid, "archive_status", "deleted");
 		}
 	}
 
-	$self->__log("astor_delete_checker: Checking completed for Document $docid...");
+	$self->_log("astor_delete_checker: Checking completed for Document $docid...");
 
 	return EPrints::Const::HTTP_OK;
 }
 
 
-sub __process_requests
+sub _process_requests
 {
 	my( $self, $dataset, $key, $value, $action ) = @_;
 
@@ -434,7 +444,7 @@ sub __process_requests
 	
 	my $ds = $repository->dataset( $dataset );
 
-	$self->__log("__process_requests: Searching for $key values $value...");
+	$self->_log("_process_requests: Searching for $key values $value...");
 
 	# Create search expression
 	my $search = new EPrints::Search( session=>$repository, dataset=>$ds );
@@ -453,7 +463,7 @@ sub __process_requests
 			my( $session, $dataset, $doc ) = @_;
 
 			my $docid = $doc->get_value("docid");
-			$self->__log("__process_requests: Creating $action task for Document $docid...");
+			$self->_log("_process_requests: Creating $action task for Document $docid...");
 
 			# Create an Event Task to process the copy action for this EPrint
 			$repository->dataset( "event_queue" )->create_dataobj({
@@ -465,13 +475,13 @@ sub __process_requests
  
 	$results->dispose;
 
-	$self->__log("__process_requests: Finished searching for $key values $value...");
+	$self->_log("_process_requests: Finished searching for $key values $value...");
 	
 	return;
 }
 
 
-sub __update_astor_record
+sub _update_astor_record
 {
 	my( $self, $astorid, $key, $value ) = @_;
 
@@ -480,7 +490,7 @@ sub __update_astor_record
 	my $astor = new EPrints::DataObj::Astor( $repository, $astorid );
 	if ( not defined $astor ) 
 	{
-		$self->__log("Astor record $astorid not found in __update_astor_record");
+		$self->_log("Astor record $astorid not found in _update_astor_record");
 		return 0;
 	}
 	
@@ -490,7 +500,7 @@ sub __update_astor_record
 }
 
 
-sub __update_document_record
+sub _update_document_record
 {
 	my( $self, $docid, $key, $value ) = @_;
 
@@ -499,7 +509,7 @@ sub __update_document_record
 	my $doc = new EPrints::DataObj::Document( $repository, $docid );
 	if ( not defined $doc ) 
 	{
-		$self->__log("Document $docid not found in __update_documenht_record");
+		$self->_log("Document $docid not found in __update_documenht_record");
 		return 0;
 	}
 	
@@ -514,29 +524,29 @@ sub __update_document_record
 #
 
 
-sub __astor_getStatusInfo 
+sub _astor_getStatusInfo 
 {
 	my( $self ) = @_;
 
 	my $api_url = "/json/status/info/";
 	
-	my $response = $self->__astor_getRequest($api_url);
+	my $response = $self->_astor_getRequest($api_url);
 	if ( not defined $response )
 	{
-		$self->__log("Inavlid response returned in __astor_getStatus");
+		$self->_log("Inavlid response returned in __astor_getStatus");
 		return;
 	}
 
 	if ($response->is_error) 
 	{
-		$self->__log("Invalid response returned in __astor_getStatus: $response->status_line");
+		$self->_log("Invalid response returned in __astor_getStatus: $response->status_line");
 		return;
 	}
   
 	# Get the content which should be a json string
 	my $json = decode_json($response->content);
 	if ( not defined $json) {
-		$self->__log("Invalid response returned in __astor_getStatus");
+		$self->_log("Invalid response returned in __astor_getStatus");
 		return;
 	}
   
@@ -544,29 +554,29 @@ sub __astor_getStatusInfo
 }
 
 
-sub __astor_getFileInfo
+sub _astor_getFileInfo
 {
 	my( $self, $filename) = @_;
 
 	my $api_url = "/json/search/files?path=" . $filename;
 
-	my $response = $self->__astor_getRequest($api_url);
+	my $response = $self->_astor_getRequest($api_url);
 	if ( not defined $response )
 	{
-		$self->__log("__astor_getFileInfo: Invalid response returned...");
+		$self->_log("_astor_getFileInfo: Invalid response returned...");
 		return;
 	}
 
 	if ($response->is_error) 
 	{
-		$self->__log("__astor_getFileInfo: Invalid response returned: $response->status_line");
+		$self->_log("_astor_getFileInfo: Invalid response returned: $response->status_line");
 		return;
 	}
 
 	# Get the content which should be a json string
 	my $json = decode_json($response->content);
 	if ( not defined $json) {
-		$self->__log("__astor_getFileInfo: Invalid response returned...");
+		$self->_log("_astor_getFileInfo: Invalid response returned...");
 		return;
 	}
   
@@ -574,24 +584,7 @@ sub __astor_getFileInfo
 }
 
 
-sub __astor_deleteFile
-{
-	my( $self, $filename) = @_;
-
-	my $api_url = "/files" . $filename;
-	
-	my $response = $self->__astor_deleteRequest($api_url);
-	if ( not defined $response )
-	{
-		$self->__log("__astor_getFileInfo: Invalid response returned...");
-		return;
-	}
-  
-	return $response;
-}
-
-
-sub __astor_getRequest 
+sub _astor_getRequest 
 {
 	my( $self, $url, $params ) = @_;
 
@@ -605,22 +598,7 @@ sub __astor_getRequest
 }
 
 
-sub __astor_deleteRequest 
-{
-	my( $self, $url, $params) = @_;
-
-	my $ark_server = $self->param( "server_url" );
-	my $server_url = $ark_server . $url;
-	
-	my $ua       = LWP::UserAgent->new();
-	my $req = HTTP::Request->new(DELETE => $server_url);
-	my $response = $ua->request($req);
-  
-	return $response;
-}
-
-
-sub __log 
+sub _log 
 {
 	my ( $self, $msg) = @_;
 
@@ -628,7 +606,7 @@ sub __log
 }
 
 
-sub __set_debug 
+sub _set_debug 
 {
 	my ( $self, $enabled) = @_;
 	
@@ -641,8 +619,7 @@ sub __set_debug
 }
 
 
-sub __map_to_ark_path 
-{
+sub _map_to_astor_path {
 	
 	my( $self, $local_path) = @_;
 	
@@ -650,16 +627,12 @@ sub __map_to_ark_path
 	my $repo = $self->{session}->get_repository;
 	my $local_root_path = $repo->get_conf( "archiveroot" );
 
-	# Get the configured mount path for the Arkivum storage and append the repo id to it
-	my $ark_mount_path = $self->param( "mount_path" );
-	$ark_mount_path .= '/'.$repo->id;
+	# Start to build the astor path relative to the repository
+	my $astor_mount_path = '/' . $repo->id;
 	
-	# Normalize to make sure there are no double-slashes in the mount path
-	$ark_mount_path =~ s#//#/#g;
-	
-	# Replace the local root path with the Arkivum mount path
+	# Replace the local root path with the A-Stor relative path
 	my $mapped_path = $local_path;
-	$mapped_path =~ s#$local_root_path#$ark_mount_path#;
+	$mapped_path =~ s#$local_root_path#$astor_mount_path#;
 	
 	return $mapped_path;
 }

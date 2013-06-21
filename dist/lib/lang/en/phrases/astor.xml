@@ -34,7 +34,8 @@
 <epp:phrase id="astor_fieldopt_astor_status_delete_failed">File Deletion Failed</epp:phrase>
 
 <epp:phrase id="Plugin/Screen/EPrint/Document/AStor:title">Manage archival storage</epp:phrase>
-<epp:phrase id="Plugin/Screen/EPrint/Document/AStor:help">HELP TEXT</epp:phrase>
+<epp:phrase id="Plugin/Screen/EPrint/Document/AStor:help">Arhive Request</epp:phrase>
+<epp:phrase id="Plugin/Screen/EPrint/Document/AStor:action_delete">Delete Archive</epp:phrase>
 <epp:phrase id="Plugin/Screen/Workflow/AStorApprove:title">Approve</epp:phrase>
 <epp:phrase id="Plugin/Screen/Workflow/AStorApprove:confirm_archive">Are you sure you want to allow archiving to proceed for:<br />
 <div class="ep_block">
@@ -46,6 +47,8 @@
 </epp:phrase>
 <epp:phrase id="Plugin/Screen/Workflow/AStorApprove:action:archive:title">Archive</epp:phrase>
 <epp:phrase id="Plugin/Screen/Workflow/AStorApprove:action:delete:title">Delete</epp:phrase>
-
+<epp:phrase id="astor:workflow:stage:default:title">Archive Approval</epp:phrase>
+<epp:phrase id="astor_fieldname_hash">MD5 Checksum</epp:phrase>
+<epp:phrase id="lib/submissionform:action_delete">Delete Archive</epp:phrase>
 
 </epp:phrases>

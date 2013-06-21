@@ -29,7 +29,7 @@ sub new
 		},
 	];
 	
-	$self->{actions} = [qw/ cancel create /];
+	$self->{actions} = [qw/ cancel create delete /];
 
 	$self->{ajax} = "interactive";
 
@@ -38,7 +38,7 @@ sub new
 
 sub allow_cancel { 1 }
 sub allow_create { shift->can_be_viewed( @_ ) }
-sub allow_update { shift->can_be_viewed( @_ ) }
+sub allow_delete { shift->can_be_viewed( @_ ) }
 
 sub current_astor
 {
@@ -103,6 +103,12 @@ sub render
 		class => 'ep_block',
 	) );
 
+	$frag->appendChild( $xml->create_data_element(
+		'div',
+		$self->render_file_list,
+		class => 'ep_block',
+	) );
+
 	if (defined $astor)
 	{
 		$frag->appendChild($self->render_control($astor));
@@ -110,6 +116,36 @@ sub render
 	else
 	{
 		$frag->appendChild($self->render_create);
+	}
+
+	return $frag;
+}
+
+sub render_file_list
+{
+	my ($self) = @_;
+
+	my $repo = $self->repository;
+	my $xml = $repo->xml;
+	my $xhtml = $repo->xhtml;
+
+	my $doc = $self->{processor}->{document};
+
+	my $frag = $xml->create_document_fragment;
+
+	$frag->appendChild(my $table = $xml->create_element('table'));
+
+	foreach my $file (@{$doc->value('files')})
+	{
+		my @cells;
+		foreach my $copy (@{$file->value('copies')})
+		{
+			push @cells, $xml->create_text_node($copy->{pluginid});
+		}
+		$table->appendChild($repo->render_row(
+			$file->render_value('filename'),
+			@cells,
+		));
 	}
 
 	return $frag;
@@ -170,8 +206,18 @@ sub render_control
 
 	my $form = $frag->appendChild($self->render_form);
 
+	$form->appendChild(my $table = $xml->create_element('table'));
+
 	if ($doc->value('archive_status') eq 'archived')
 	{
+		foreach my $field ($dataset->field('justification'))
+		{
+			$table->appendChild($repo->render_row(
+				$field->render_name($repo),
+				$field->render_input_field($repo),
+			));
+		}
+
 		$form->appendChild($repo->render_action_buttons(
 			delete => $repo->phrase('lib/submissionform:action_delete'),
 			cancel => $repo->phrase('lib/submissionform:action_cancel'),
@@ -214,6 +260,30 @@ sub action_create
 	my $astor = $dataset->create_dataobj($epdata);
 
 	$doc->set_value('archive_status', 'archive_requested');
+	$doc->commit;
+}
+
+sub action_delete
+{
+	my( $self ) = @_;
+
+	my $repo = $self->repository;
+	my $dataset = $repo->dataset('astor');
+	my $astor = $self->current_astor;
+
+	$self->{processor}->{redirect} = $self->{processor}->{return_to}
+		if !$self->wishes_to_export;
+
+	my $doc = $self->{processor}->{document};
+
+	foreach my $field ($dataset->field('justification'))
+	{
+		$astor->set_value($field->name, $field->form_value($repo));
+	}
+
+	$astor->commit;
+
+	$doc->set_value('archive_status', 'delete_requested');
 	$doc->commit;
 }
 

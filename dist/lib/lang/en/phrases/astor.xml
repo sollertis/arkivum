@@ -47,6 +47,7 @@
 </epp:phrase>
 <epp:phrase id="Plugin/Screen/Workflow/AStorApprove:action:archive:title">Archive</epp:phrase>
 <epp:phrase id="Plugin/Screen/Workflow/AStorApprove:action:delete:title">Delete</epp:phrase>
+<epp:phrase id="Plugin/Screen/Workflow/AStorApprove:confirm_delete">Confirm Delete</epp:phrase>
 <epp:phrase id="astor:workflow:stage:default:title">Archive Approval</epp:phrase>
 <epp:phrase id="astor_fieldname_hash">MD5 Checksum</epp:phrase>
 <epp:phrase id="lib/submissionform:action_delete">Delete Archive</epp:phrase>

@@ -1,20 +1,19 @@
 =head1 NAME
 
-EPrints::Plugin::Storage::Arkivum - storage to Arkivum assured archive service
+EPrints::Plugin::Storage::ArkivumStorage - storage to Arkivum assured archive service
 
 =head1 SYNOPSIS
 
-	# cfg.d/plugins.pl
-	$c->{plugins}->{"Storage::Arkivum"}->{params}->{mount_path} = "...";
+	# cfg.d/x_arkivum.pl
+	$c->{plugins}->{"Storage::ArkivumStorage"}->{params}->{mount_path} = "...";
+	$c->{plugins}->{"Storage::ArkivumStorage"}->{params}->{server_url} = "https:...";
 
-	# lib/storage/default.xml
-	<plugin name="Arkivum"/>
 
 =head1 DESCRIPTION
 
 See L<EPrints::Plugin::Storage> for available methods.
 
-To enable this module you must specify the mount path where the Arkivum appliance is mounted on the local file system.
+To enable this module you must specify the mount path where the Arkivum appliance is mounted on the local file system and the appliance server url.
 
 =head1 METHODS
 
@@ -22,7 +21,7 @@ To enable this module you must specify the mount path where the Arkivum applianc
 
 =cut
 
-package EPrints::Plugin::Storage::ArkivumR;
+package EPrints::Plugin::Storage::ArkivumStorage;
 
 use Fcntl qw( SEEK_SET :DEFAULT );
 
@@ -93,7 +92,7 @@ sub delete
 	my $response = $self->__astor_deleteFile($filename);
 	if ($response->is_error) 
 	{
-		$self->_log("ArkivumR: Error invalid response returned: " . $response->status_line);
+		$self->_log("ArkivumStorage: Error invalid response returned: " . $response->status_line);
 		return 0;
 	}
 

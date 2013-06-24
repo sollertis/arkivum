@@ -3,12 +3,12 @@
 # Once done, please remove the comments '#' from the beginning of each line, save this file and then reload the repository config from the Admin screen.
 # 
 
-$c->{plugins}->{"Storage::ArkivumR"}->{params}->{mount_path} = "/mnt/arkivum";
-$c->{plugins}->{"Storage::ArkivumR"}->{params}->{server_url} = "https://172.18.2.240:8443";
-$c->{plugins}->{"Event::Arkivum"}->{params}->{server_url} = "https://172.18.2.240:8443";
+$c->{plugins}->{"Storage::ArkivumStorage"}->{params}->{mount_path} = "/mnt/arkivum";
+$c->{plugins}->{"Storage::ArkivumStorage"}->{params}->{server_url} = "https://localhost:8443";
+$c->{plugins}->{"Event::Arkivum"}->{params}->{server_url} = "https://localhost:8443";
 
 $c->{plugins}{"Event::Arkivum"}{params}{disable} = 0;
-$c->{plugins}{"Storage::ArkivumR"}{params}{disable} = 0;
+$c->{plugins}{"Storage::ArkivumStorage"}{params}{disable} = 0;
 $c->{plugins}{"Screen::EPrint::Document::AStor"}{params}{disable} = 0;
 $c->{plugins}{"Screen::Workflow::AStorApprove"}{params}{disable} = 0;
 

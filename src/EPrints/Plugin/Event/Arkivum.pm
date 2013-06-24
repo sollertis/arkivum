@@ -1,3 +1,22 @@
+=head1 NAME
+
+EPrints::Plugin::Event::Arkivum - Event task to manage archiving to A-Stor service
+
+=head1 SYNOPSIS
+
+	# cfg.d/x_arkivum.pl
+	$c->{plugins}->{"Event::Arkivum"}->{params}->{server_url} = "https://...";
+
+=head1 DESCRIPTION
+
+See L<EPrints::Plugin::Event> for available methods.
+
+To enable this module you must specify the server url for the Arkivum appliance.
+
+=head1 METHODS
+
+=cut
+
 package EPrints::Plugin::Event::Arkivum;
 
 @ISA = qw( EPrints::Plugin::Event );
@@ -25,6 +44,29 @@ sub new
     return $self;
 }
 
+
+######################################################################
+
+=over 4
+
+=item astor_checker
+
+Check the if any archive or delete requests for ePrints documents have
+been made and create the appropriate event task for each specific docid.
+This event will also check the status of any copy or delete event that are in 
+progress.
+
+This event is run according to a cron event configured in the control screen for the
+plugin. By default it will run every 15 minutes.
+
+If this event succeeds then it will return HTTP_OK, otherwise it will log an error 
+message and return HTTP_INTERNAL_SERVER_ERROR and fail the event tazk.
+
+=back
+
+=cut
+
+#####################################################################
 
 sub astor_checker 
 {
@@ -80,6 +122,25 @@ sub astor_checker
    	return EPrints::Const::HTTP_OK;
 }
 
+######################################################################
+
+=over 4
+
+=item astor_copy
+
+Copy a specific ePrint document to the A-Stor service.
+
+This event task will copy the ePrints document specified by the docid
+and astorid to the A-Stor service.
+
+If this event succeeds then it will return HTTP_OK, otherwise it will log an error 
+message and return HTTP_INTERNAL_SERVER_ERROR and fail the event tazk.
+
+=back
+
+=cut
+
+#####################################################################
 
 sub astor_copy
 {
@@ -106,8 +167,8 @@ sub astor_copy
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	# Get the specific ArkivumR plugin
-	my $plugin = $repository->plugin( "Storage::ArkivumR" );
+	# Get the specific ArkivumStorage plugin
+	my $plugin = $repository->plugin( "Storage::ArkivumStorage" );
 	if ( not defined $plugin )
 	{
 		$self->_log("astor_copy: Could not get the A-Stor plugin for Document $docid...");
@@ -171,6 +232,23 @@ sub astor_copy
 }
 
 
+######################################################################
+
+=over 4
+
+=item astor_status_checker
+
+Check the status of a copy for a specific ePrint document.
+
+If this event succeeds then it will return HTTP_OK, otherwise it will log an error 
+message and return HTTP_INTERNAL_SERVER_ERROR and fail the event tazk.
+
+=back
+
+=cut
+
+#####################################################################
+
 sub astor_status_checker
 {
 	my( $self, $docid, $astorid ) = @_;
@@ -202,7 +280,10 @@ sub astor_status_checker
 	
 	my $state_count = 0;
 	my $file_count = @{$doc->get_value( "files" )};
-
+	
+	# We need to store the A-Stor MD5 checksums so we can update the astor record.
+	my @values;
+	
 	# We need to check all files attached to a document. We then check the A-Stor state
 	# for each file and keep a count. If the count equals the number of files attached
 	# to the document then we can move the status on.
@@ -256,6 +337,12 @@ sub astor_status_checker
 					$self->_update_astor_record($astorid, "astor_status", "archive_failed");
 					return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 				}
+				
+				# The MD5 checksums match so store the A-Stor checksum so we
+				# can update the astor record once we've finished.
+				push @values, { filename => $filename, hash => $astorMD5 }; 
+				
+			# Update the status counter to indicate that this file has been process successfully.
 				$state_count = $state_count + 1;
 			}
 		  }
@@ -282,7 +369,12 @@ sub astor_status_checker
 	if ( $state_count == $file_count) {
 		given ($astor_status) {
 		  when(/^ingest_in_progress/) {
-			$self->_update_astor_record($astorid, "astor_status", "ingested");
+			# Add the checksums to the astor record
+			$astor->set_value( "hash", \@values );
+
+			# Set the astor status
+			$astor->set_value("astor_status", "ingested");
+			$astor->commit();
 		  }
 		  when(/^ingested/) { 
 			$self->_update_astor_record($astorid, "astor_status", "replicated");
@@ -297,12 +389,32 @@ sub astor_status_checker
 		  }
 		}
 	}
-
+	
 	$self->_log("astor_status_checker: Checking completed for Document $docid...");
 
 	return EPrints::Const::HTTP_OK;
 }
 
+
+######################################################################
+
+=over 4
+
+=item astor_delete
+
+Delete a specific ePrint document from the A-Stor service.
+
+This event task will delete the ePrints document specified by the docid
+and astorid from the A-Stor service.
+
+If this task succeeds then it will return HTTP_OK, otherwise it will log an error 
+message and return HTTP_INTERNAL_SERVER_ERROR and fail the event tazk.
+
+=back
+
+=cut
+
+#####################################################################
 
 sub astor_delete
 {
@@ -327,8 +439,8 @@ sub astor_delete
 		return EPrints::Const::HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	# Get the specific ArkivumR plugin
-	my $plugin = $repository->plugin( "Storage::ArkivumR" );
+	# Get the specific ArkivumStorage plugin
+	my $plugin = $repository->plugin( "Storage::ArkivumStorage" );
 	if ( not defined $plugin )
 	{
 		$self->_log("astor_delete: Could not get the A-Stor plugin for Document $docid...");
@@ -369,6 +481,25 @@ sub astor_delete
 }
 
 
+
+
+######################################################################
+
+=over 4
+
+=item astor_delete_checker
+
+Check the status of a deletion from the A-Stor service for a specific 
+ePrints document.
+
+If this task succeeds then it will return HTTP_OK, otherwise it will log an error 
+message and return HTTP_INTERNAL_SERVER_ERROR and fail the event tazk.
+
+=back
+
+=cut
+
+#####################################################################
 
 sub astor_delete_checker
 {

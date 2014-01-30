@@ -8,7 +8,7 @@
    
   <stage name="default">
     <component type="Field::Multi">
-      <title>A-Stor Document Request Details</title>
+      <title>A-Stor EPrint Request Details</title>
       <field ref="justification" />
     </component>
   </stage>

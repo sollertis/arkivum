@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w -I/opt/eprints3/perl_lib
+# Print the title of an eprint
+
+use EPrints;
+use strict;
+
+use JSON qw(decode_json);
+use LWP::UserAgent;
+use Data::Dumper;
+
+# Change the following URL to point to the 
+# A-Stor appliance
+my $astor_url = "https://172.18.2.240:8443";
+
+
+sub _astor_getRequest 
+{
+	  my( $url ) = @_;
+
+	  my $server_url = $astor_url . $url;
+
+	  my $ua       = LWP::UserAgent->new();
+	  my $response = $ua->get( $server_url );
+	  
+	  my $json;
+	  
+	  if ( defined $response ) {
+	      # Get the content which should be a json string
+	      $json = decode_json($response->content);
+	  }
+
+	  return $json;
+}
+
+
+# Check that we got the required args
+if( scalar @ARGV != 1 )
+{
+	print "Usage: $0 <rest-url>. Will use a default of value of  /files/ instead\n";
+}
+
+my $rest = $ARGV[0];
+
+if ( not defined $rest ) {
+  $rest = "/files/";
+}
+
+my $response = _astor_getRequest($rest);
+
+if ( defined $response ) {
+  print "\nRest API Response to URL: $rest:\n" . Dumper( $response ) . "\n";
+}
+else {
+  print "\nNo response from the server $astor_url was received\n";
+}
+

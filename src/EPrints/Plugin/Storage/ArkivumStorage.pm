@@ -574,16 +574,16 @@ sub _isAStorFileLocal
 	      return;
     }
     
-    my $local = @{$fileInfo->{"results"}}[0]->{"local"};
+    my $local = $fileInfo->{"local"};
     
     if ( $local eq "true" )
     {
         $ok = 1;
     }
     
-    my $filesize = @{$fileInfo->{"results"}}[0]->{"size"};
+    my $filesize = $fileInfo->{"size"};
 
-    return ($ok, $filesize);    
+    return ($ok, $filesize);
 }
 
 
@@ -591,7 +591,7 @@ sub _astor_getFileInfo
 {
 	  my( $self, $filename) = @_;
 
-	  my $api_url = "/json/search/files?path=" . $filename;
+	  my $api_url = "/api/2/files/fileInfo" . $filename;
 
 	  my $response = $self->_astor_getRequest($api_url);
 	  if ( not defined $response )

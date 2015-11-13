@@ -186,13 +186,13 @@ $c->add_dataset_trigger( "eprint", EP_TRIGGER_STATUS_CHANGE ,
     sub 
     {
         my ( %params ) = @_;
-        my $repository = %params->{repository};
+        my $repository = $params{repository};
 
         return undef if (!defined $repository);
 
-		    if (defined %params->{dataobj})
+		    if (defined $params{dataobj})
 		    {
-			      my $dataobj = %params->{dataobj};
+			      my $dataobj = $params{dataobj};
 			      my $eprintid = $dataobj->id;
 			
 			      # Get the eprint object so we can check the status
@@ -235,91 +235,3 @@ push @{$c->{user_roles}{admin}}, qw(
 	+astor/edit
 	+astor/view
 );
-
-# Define the class, this can either be done using a new file in the right place, or by using this override trick, open a '{' and then continue as it this is new file
-{
-    package EPrints::DataObj::AstorEPrint;
-
-    our @ISA = qw( EPrints::DataObj::SubObject );
-
-    # The new method can simply return the constructor of the super class (Dataset)
-    sub new
-    {
-        return shift->SUPER::new( @_ );
-    }
-
-    # This method is required to just return the dataset_id.
-    sub get_dataset_id
-    {
-        my ($self) = @_;
-        return "astor_eprint";
-    }
-
-		sub parent
-		{
-			  my ($self) = @_;
-
-			  my $eprintid = $self->value('eprintid');
-			  return if !$eprintid;
-
-			  return $self->{session}->dataset('eprint')->dataobj($eprintid);
-		}
-
-		sub remove
-		{
-			  my ($self) = @_;
-
-			  my $eprint = $self->parent;
-			  if (defined $eprint)
-			  {
-				  $eprint->set_value('archive_status', undef);
-				  $eprint->commit;
-			  }
-
-			  return $self->SUPER::remove();
-		}
-}
-
-{
-    package EPrints::DataObj::Astor;
-
-    our @ISA = qw( EPrints::DataObj::SubObject );
-
-    # The new method can simply return the constructor of the super class (Dataset)
-    sub new
-    {
-        return shift->SUPER::new( @_ );
-    }
-
-    # This method is required to just return the dataset_id.
-    sub get_dataset_id
-    {
-        my ($self) = @_;
-        return "astor";
-    }
-
-		sub parent
-		{
-			  my ($self) = @_;
-
-			  my $docid = $self->value('docid');
-			  return if !$docid;
-
-			  return $self->{session}->dataset('document')->dataobj($docid);
-		}
-
-		sub remove
-		{
-			  my ($self) = @_;
-
-			  my $doc = $self->parent;
-			  if (defined $doc)
-			  {
-				  $doc->set_value('archive_status', undef);
-				  $doc->commit;
-			  }
-
-			  return $self->SUPER::remove();
-		}
-}
-
